@@ -19,6 +19,7 @@ import android.os.Build.VERSION;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -40,6 +41,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
+//TODO: Add sign up functionality
 public class LoginActivity extends AppCompatActivity {
 
     private EditText userNameText;
@@ -64,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    //TODO: Authenticate User
     private void attemptLogin() {
 
         // Store values at the time of the login attempt.
@@ -74,23 +77,19 @@ public class LoginActivity extends AppCompatActivity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) || !isPasswordValid(password)) {
-            String estring = "Ivalid Password";
-            ForegroundColorSpan fgcspan = new ForegroundColorSpan(0);
-            SpannableStringBuilder ssbuilder = new SpannableStringBuilder(estring);
-            ssbuilder.setSpan(fgcspan, 0, estring.length(), 0);
-            passwordText.setError(ssbuilder);
+        if (!isPasswordValid(password)) {
+            passwordText.setError(Html.fromHtml("<font color='red'>Invalid Password</font>"));
             focusView = passwordText;
             cancel = true;
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-           userNameText.setError(getString(R.string.error_field_required));
+           userNameText.setError(Html.fromHtml("<font color='red'>This Filed is Required</font>"));
             focusView = userNameText;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            userNameText.setError("Invalid Email");
+            userNameText.setError(Html.fromHtml("<font color='red'>Invalid Email</font>"));
             focusView = userNameText;
             cancel = true;
         }
