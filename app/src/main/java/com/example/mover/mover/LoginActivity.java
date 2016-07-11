@@ -52,17 +52,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-
         userNameText = (EditText) findViewById(R.id.userNameText);
         passwordText = (EditText) findViewById(R.id.passwordText);
-        System.out.println(userNameText + " , " + passwordText);
 
     }
 
@@ -103,6 +94,12 @@ public class LoginActivity extends AppCompatActivity {
             Intent k = new Intent(this, MainActivity.class);
             startActivity(k);
         }
+    }
+
+    private void signup() {
+        Intent k = new Intent(this, signupActivity.class);
+        startActivity(k);
+
     }
 
     private boolean isEmailValid(String email) {

@@ -17,14 +17,17 @@ import java.nio.charset.StandardCharsets;
  */
 public class postRequest extends AsyncTask<String, String, String> {
 
+    private String urlParameters;
+
     public interface AsyncResponse {
         void processFinish(String output);
     }
 
     public AsyncResponse delegate = null;
 
-    public postRequest(AsyncResponse delegate) {
+    public postRequest(AsyncResponse delegate, String urlParameters) {
         this.delegate = delegate;
+        this.urlParameters = urlParameters;
     }
 
     @Override
@@ -43,7 +46,6 @@ public class postRequest extends AsyncTask<String, String, String> {
         InputStream in = null;
         try {
 
-            String urlParameters  = "name=Luke&message=Hello";
             byte[] postData       = urlParameters.getBytes();
             int postDataLength = postData.length;
             URL url            = new URL(urlString);
