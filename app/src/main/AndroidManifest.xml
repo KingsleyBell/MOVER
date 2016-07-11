@@ -25,7 +25,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".accidentActivity"></activity>
+        <activity
+            android:name=".signupActivity"
+            android:parentActivityName="com.example.mover.mover.LoginActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.mover.mover.LoginActivity" />
+        </activity>
+        <activity
+            android:name=".accidentActivity"
+            android:parentActivityName="com.example.mover.mover.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.mover.mover.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

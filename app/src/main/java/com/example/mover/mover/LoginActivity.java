@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //TODO: Authenticate User
-    private void attemptLogin() {
+    public void attemptLogin(View view) {
 
         // Store values at the time of the login attempt.
         String email = userNameText.getText().toString();
@@ -96,12 +96,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void signup() {
-        Intent k = new Intent(this, signupActivity.class);
-        startActivity(k);
-
-    }
-
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
@@ -112,5 +106,9 @@ public class LoginActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
+    public void signup(View view) {
+        Intent k = new Intent(this, signupActivity.class);
+        startActivity(k);
+    }
 }
 

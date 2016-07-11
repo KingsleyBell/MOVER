@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
                 tv1.setText("Acceleration: " + acc);
                 //tv1.setVisibility(View.VISIBLE);
 
-                if(acc < 20) {
+                if(acc > 20) {
+                    System.out.println(acc);
                     accidentAlert();
                 }
 
@@ -104,18 +105,18 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
 
     public void accidentAlert() {
 
-        postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse(){
-
-            @Override
-            public void processFinish(String output){
-                Context context = getApplicationContext();
-
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, output, duration);
-                toast.show();
-            }
-        }, "name=Luke&message=accident!").execute("http://moutonf.co.za:5000/test-post");
+//        postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse(){
+//
+//            @Override
+//            public void processFinish(String output){
+//                Context context = getApplicationContext();
+//
+//                int duration = Toast.LENGTH_SHORT;
+//
+//                Toast toast = Toast.makeText(context, output, duration);
+//                toast.show();
+//            }
+//        }, "name=Luke&message=accident!").execute("http://moutonf.co.za:5000/test-post");
 
         Intent k = new Intent(this, accidentActivity.class);
         startActivity(k);

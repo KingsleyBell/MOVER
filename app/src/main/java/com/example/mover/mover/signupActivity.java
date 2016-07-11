@@ -36,18 +36,10 @@ public class signupActivity extends AppCompatActivity {
                 + (myCalendar.get(Calendar.MONTH) + 1) + "/"
                 + myCalendar.get(Calendar.YEAR));
 
-        Button signupButton = (Button) findViewById(R.id.sign_in_button);
-       signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptSignup();
-            }
-        });
-
     }
 
     //TODO: validate fields and add user to db
-    public void attemptSignup() {
+    public void attemptSignup(View view) {
         Intent k = new Intent(this, MainActivity.class);
         startActivity(k);
     }
