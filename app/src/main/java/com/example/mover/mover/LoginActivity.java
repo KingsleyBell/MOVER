@@ -3,6 +3,7 @@ package com.example.mover.mover;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -32,9 +33,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -46,6 +49,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText userNameText;
     private EditText passwordText;
+    String postResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,9 +94,47 @@ public class LoginActivity extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            //Go to main activity
-            Intent k = new Intent(this, MainActivity.class);
-            startActivity(k);
+            //All fields filled in correctly, try login
+
+            //All fields filled out fine, try sign up
+            if(loginRequest(email, password)){
+                Mover.setUser(email);
+                //Go to main activity
+                Intent k = new Intent(this, MainActivity.class);
+                startActivity(k);
+            }
+        }
+    }
+
+    public Boolean loginRequest(String user, String password) {
+
+        postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse() {
+
+            @Override
+            public void processFinish(String output) {
+
+                Context context = getApplicationContext();
+
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, output, duration);
+                toast.show();
+            }
+        }, "email=" + user + "&password=" + password).execute("http://139.162.178.79:4000/login");
+
+        try {
+            postResponse = asyncTask.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        if(postResponse.contains("error")){
+            return false;
+        }
+        else {
+            return true;
         }
     }
 

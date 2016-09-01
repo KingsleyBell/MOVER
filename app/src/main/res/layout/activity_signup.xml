@@ -10,13 +10,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Name"
         android:id="@+id/nameText"
-        android:layout_alignParentTop="true"
         android:gravity="center"
+        android:layout_marginTop="60dp"
+        android:text="Name"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -26,43 +26,27 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Surname"
         android:id="@+id/surnameText"
-        android:layout_below="@+id/nameText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/emailText"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/surnameText"
-        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Email" />
+        android:layout_below="@+id/nameText" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Date of Birth"
-        android:id="@+id/dobText"
+        android:text="Email"
+        android:id="@+id/emailText"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:hint="dd/mm/yyyy"
-        android:layout_below="@+id/emailText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/surnameText" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -72,11 +56,11 @@
         android:id="@+id/passwordText"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_below="@+id/dobText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/emailText" />
 
     <EditText
         android:layout_width="wrap_content"

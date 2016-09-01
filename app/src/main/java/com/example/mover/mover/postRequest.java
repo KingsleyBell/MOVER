@@ -67,7 +67,7 @@ public class postRequest extends AsyncTask<String, String, String> {
 
             System.out.println(e);
 
-            return "error";
+            return "" + e;
 
         }
 
@@ -86,4 +86,5 @@ public class postRequest extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         delegate.processFinish(result);
     }
+
 }
