@@ -3,16 +3,17 @@ package com.example.mover.mover;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.Calendar;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -88,18 +89,21 @@ public class signupActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             //All fields filled out fine, try sign up
-            if(signupRequest(name, surname, email, password)){
-                Mover.setUser(email);
-                //Go to main activity
-                Intent k = new Intent(this, MainActivity.class);
-                startActivity(k);
+            try {
+                if(signupRequest(name, surname, email, password)){
+                    //Go to main activity
+                    Intent k = new Intent(this, MainActivity.class);
+                    startActivity(k);
+                }
+            } catch (JSONException e) {
+                Log.e("SignUpActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
             }
         }
     }
 
 
-    public Boolean signupRequest(String name, String surname, String user, String password) {
-
+    public Boolean signupRequest(String name, String surname, String user, String password) throws JSONException {
+        JSONObject jsonResponse;
         postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse() {
 
             @Override
@@ -116,16 +120,20 @@ public class signupActivity extends AppCompatActivity {
 
         try {
             postResponse = asyncTask.get();
+            jsonResponse = new JSONObject(postResponse);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("SignUpActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
+            return false;
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            Log.e("SignUpActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
+            return false;
         }
 
-        if(postResponse.contains("error") || postResponse.contains("Exception")){
+        if(jsonResponse.getString("auth").equals("fail")){
             return false;
         }
         else {
+            Mover.setUser(jsonResponse.getInt("id"));
             return true;
         }
     }

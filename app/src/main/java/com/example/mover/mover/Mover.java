@@ -1,20 +1,45 @@
 package com.example.mover.mover;
 
 import android.app.Application;
+import android.content.Context;
+
+import org.acra.*;
+import org.acra.annotation.*;
 
 /**
  * Created by LUKE on 2016/08/01.
  */
+
+@ReportsCrashes(mailTo = "lukekingsleybell@gmail.com",
+                mode = ReportingInteractionMode.TOAST,
+                resToastText = R.string.crash_toast_text)
 public class Mover extends Application {
 
-    private static String user;
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
 
-    public static String getUser() {
+        // The following line triggers the initialization of ACRA
+        ACRA.init(this);
+    }
+
+    private static int user;
+    private static boolean accident;
+
+    public static int getUser() {
         return user;
     }
 
-    public static void setUser(String u) {
+    public static void setUser(int u) {
         user = u;
+    }
+
+    public static boolean getAccident() {
+        return accident;
+    }
+
+    public static void setAccident(boolean a) {
+        accident = a;
     }
 
 }

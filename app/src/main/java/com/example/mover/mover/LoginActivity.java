@@ -24,6 +24,7 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +35,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,16 +101,20 @@ public class LoginActivity extends AppCompatActivity {
             //All fields filled in correctly, try login
 
             //All fields filled out fine, try sign up
-            if(loginRequest(email, password)){
-                Mover.setUser(email);
-                //Go to main activity
-                Intent k = new Intent(this, MainActivity.class);
-                startActivity(k);
+            try {
+                if(loginRequest(email, password)){
+                    //Go to main activity
+                    Intent k = new Intent(this, MainActivity.class);
+                    startActivity(k);
+                }
+            } catch (JSONException e) {
+                Log.e("LoginActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
             }
         }
     }
 
-    public Boolean loginRequest(String user, String password) {
+    public Boolean loginRequest(String user, String password) throws JSONException {
+        JSONObject jsonResponse;
 
         postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse() {
 
@@ -124,16 +132,20 @@ public class LoginActivity extends AppCompatActivity {
 
         try {
             postResponse = asyncTask.get();
+            jsonResponse = new JSONObject(postResponse);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("LoginActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
+            return false;
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            Log.e("LoginActivity",  "Message: " + e.getMessage() +"\nCause: " + e.getCause());
+            return false;
         }
 
-        if(postResponse.contains("error")){
+        if(jsonResponse.getString("auth").equals("fail")){
             return false;
         }
         else {
+            Mover.setUser(jsonResponse.getInt("id"));
             return true;
         }
     }

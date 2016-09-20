@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MOVER</string>
     <string name="email">Email</string>
-    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_login">Mover</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -15,4 +15,5 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="crash_toast_text">Mover crashed</string>
 </resources>

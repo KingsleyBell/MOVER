@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="@string/email"
+        android:hint="@string/email"
         android:ems="10"
         android:id="@+id/userNameText"
         android:gravity="center"
