@@ -1,4 +1,4 @@
-package com.example.mover.mover;
+package com.mover.vehicle;
 
 /**
  * Created by LUKE on 2016/08/14.

@@ -1,4 +1,4 @@
-package com.example.mover.mover;
+package com.mover.vehicle;
 
 import android.app.Application;
 import android.content.Context;
@@ -12,7 +12,7 @@ import org.acra.annotation.*;
 
 @ReportsCrashes(mailTo = "lukekingsleybell@gmail.com",
                 mode = ReportingInteractionMode.TOAST,
-                resToastText = R.string.crash_toast_text)
+                resToastText = com.mover.vehicle.R.string.crash_toast_text)
 public class Mover extends Application {
 
     @Override

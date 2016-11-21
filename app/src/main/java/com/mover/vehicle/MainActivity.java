@@ -1,8 +1,7 @@
-package com.example.mover.mover;
+package com.mover.vehicle;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -29,12 +28,19 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity implements getRequest.AsyncResponse, OnMapReadyCallback {
 
     private int user; //userID
     private TextView tv1 = null;
     private float acc; //Acceleration magnitude value
+    private float rawAcc;
+    private double g;
+    private int crashSize;
+    private int crashIndex;
+    private LinkedList<Float> crash;
+
     private float lat; //latitude
     private float lng; //longitude
 
@@ -42,9 +48,12 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
 
     //For writing acc values to file
     private FileOutputStream outputStream;
+    private FileOutputStream crashStream;
     private String path;
     private long timer;
     private float maxAcc;
+    private float maxRawAcc;
+    private double maxG;
 
     //For location
     private GoogleMap googleMap;
@@ -55,14 +64,15 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Kepps activity running through screen lock
+        //buffer for crash data
+        crashSize = 30;
+        crashIndex = 0;
+        crash = new LinkedList<Float>();
+
+        //Keeps activity running through screen lock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
         wl.acquire();
-
-        //App records maximum acceleration value of time window every 0.3 seconds
-        timer = System.currentTimeMillis();
-        maxAcc = 0;
 
         //Output file setup
         String directory = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -84,31 +94,51 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
         //Not in accident state
         Mover.setAccident(false);
 
-        setContentView(R.layout.activity_main);
+        setContentView(com.mover.vehicle.R.layout.activity_main);
 
         //Get userID
         user = Mover.getUser();
 
-        tv1 = (TextView) findViewById(R.id.sensorText);
+        tv1 = (TextView) findViewById(com.mover.vehicle.R.id.sensorText);
 
         // Getting reference to the SupportMapFragment of activity_main.xml
-        MapFragment mFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        MapFragment mFragment = (MapFragment) getFragmentManager().findFragmentById(com.mover.vehicle.R.id.map);
         mFragment.getMapAsync(this);
 
+        //App records maximum acceleration value of time window every 0.3 seconds
+        timer = System.currentTimeMillis();
+
+        //Raw acceleration, acceleration with gravity accounted for, and filtered acceleration
+        maxAcc = 0;
+        maxRawAcc = 0;
+        g = 0;
+        maxG = 0;
+
+        //write initial 0 acceleration values to file
+        try {
+            outputStream.write((String.valueOf(maxAcc)).getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //Accelerometer
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        //Accelerometer
         sensorManager.registerListener(new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
 
+                //Acceleration vector dimensions
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
+
                 //Get acceleration vector magnitude minus gravity, rounded to 2 decimal places
+                rawAcc = (((float) Math.round(Math.abs(Math.sqrt(x * x + y * y + z * z)) * 100)) / 100);
                 acc = (((float) Math.round(Math.abs(Math.sqrt(x * x + y * y + z * z)-9.8) * 100)) / 100);
+                g = 0.9 * g + 0.1 * acc;
 
                 //Location
                 myPosition = getMyLocation();
@@ -123,29 +153,78 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
                 }
                 coordinates = "lat: " + lat + "\nlong: " + lng;
 
-                tv1.setText("Acceleration: " + acc + "\nGPS coordinates:\n" + coordinates);
+                if(Mover.getAccident()){
+                    tv1.setText("ACCIDENT!\nAcceleration: " + acc + "\nGPS coordinates:\n" + coordinates);
+                }
+                else {
+                    tv1.setText("Acceleration: " + acc + "\nGPS coordinates:\n" + coordinates);
+                }
 
                 //Record max acceleration value every 0.3 seconds
                 if (System.currentTimeMillis() > timer + 300) {
                     timer = System.currentTimeMillis();
 
-                    try {
-                        outputStream.write((String.valueOf(maxAcc) + " ").getBytes());
+                    if(crash.size() >= crashSize){ //Acceleration buffer is full
+                        if(Mover.getAccident()){ //If we are in an accident state, write accident out to file
+                            try {
+                                String date = new Date().toString();
+                                File crashFile = new File(path + "/crash" + crashIndex + " " + date);
+                                crashStream = new FileOutputStream(crashFile);
+                                crashStream.write((String.valueOf(crash.remove())).getBytes());
+                                for(float crashAcc : crash){
+                                    crashStream.write((String.valueOf(" " + crashAcc)).getBytes());
+                                }
+                                crashIndex++;
+                                crashSize = 30;
+                                while(crash.size()>crashSize){
+                                    crash.remove();
+                                }
+
+                                Mover.setAccident(false);
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                                System.exit(0);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+
+                            }
+                        }
+                        else { //If not in an accident state, just remove from acceleration buffer queue and add to it
+                            crash.remove();
+                            crash.add(maxAcc);
+                        }
+                    }
+                    else { //If acceleration buffer not full, add to it
+                        crash.add(maxAcc);
+                    }
+
+                    try { //write out acceleration value to file
+                        outputStream.write((String.valueOf(" " + maxRawAcc + " " + maxAcc + " " + maxG)).getBytes());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     maxAcc = acc;
+                    maxRawAcc = rawAcc;
+                    maxG = g;
                 }
-                else {
+                else { //check if maximum acceleration for the current 300ms window has been exceeded
                     if(acc > maxAcc){
                         maxAcc = acc;
                     }
+                    if(rawAcc > maxRawAcc){
+                        maxRawAcc = rawAcc;
+                    }
+                    if(g > maxG) {
+                        maxG = g;
+                    }
                 }
 
-                //If accident detected, go to acident activity
+                //If accident detected, call accident aler method
                 if (thresholdReached(acc)) {
+                    crashSize = 60;
                     Mover.setAccident(true);
-                    accidentAlert();
+                    accidentAlert(lat, lng, maxAcc);
                 }
 
             }
@@ -162,19 +241,16 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
     @Override
     public void onPause() {
         super.onPause();
-        Mover.setAccident(false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Mover.setAccident(false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Mover.setAccident(false);
     }
 
     @Override
@@ -197,20 +273,20 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
         } else if (Mover.getAccident()) {
             return false;
         } else {
-            return false;
+            return true;
         }
     }
 
-    //Change to accident activity and send acident record to server
-    public void accidentAlert() {
+    //Send accident record to server
+    public void accidentAlert(double lattitude, double longitude, float acc) {
 
         long unixTime = System.currentTimeMillis() / 1000L;
-        CarAccident accident = new CarAccident(acc, lat, lng);
-        String request = "type=car&latitude=" + accident.getLat() + "&longitude=" + accident.getLng() + "&time-of-accident=" + unixTime + "&userId=" + user;
+        CarAccident accident = new CarAccident(acc, lattitude, longitude);
+        String request = "type=car&latitude=" + accident.getLat() + "&longitude=" + accident.getLng() + "&time-of-accident=" + unixTime + "&acceleration=" + accident.getAcceleration() + "&userId=" + user;
 
         //Start acident activity
-        Intent k = new Intent(this, accidentActivity.class);
-        startActivity(k);
+        //Intent k = new Intent(this, accidentActivity.class);
+        //startActivity(k);
 
         //Send accident record to server
         postRequest asyncTask = (postRequest) new postRequest(new postRequest.AsyncResponse() {
@@ -239,6 +315,11 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
         googleMap = gMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //Dont have permission
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //Ask for location permission if it isnt granted
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            }
         }
         googleMap.setMyLocationEnabled(true);
         myPosition = getMyLocation();
@@ -253,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements getRequest.AsyncR
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //Ask for location permission if it isnt granted
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
             }
             return null;
         }

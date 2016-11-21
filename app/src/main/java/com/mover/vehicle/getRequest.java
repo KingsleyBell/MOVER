@@ -1,6 +1,5 @@
-package com.example.mover.mover;
+package com.mover.vehicle;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import org.apache.commons.io.IOUtils;
@@ -13,6 +12,7 @@ import java.net.URL;
 
 /**
  * Created by LUKE on 2016/06/16.
+ * Class to get user information from server for login and sign up purposes
  */
 public class getRequest extends AsyncTask<String, String, String> {
 

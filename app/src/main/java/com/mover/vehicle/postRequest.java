@@ -1,6 +1,5 @@
-package com.example.mover.mover;
+package com.mover.vehicle;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import org.apache.commons.io.IOUtils;
@@ -10,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Created by LUKE on 2016/06/19.
+ * Class for posting accidents to server
  */
 public class postRequest extends AsyncTask<String, String, String> {
 
